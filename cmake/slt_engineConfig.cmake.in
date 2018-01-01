@@ -1,0 +1,14 @@
+find_package(glfw3 REQUIRED)
+find_package(CapnProto REQUIRED)
+
+get_filename_component(SLT_ENGINE_CMAKE_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
+
+get_filename_component(SLT_ENGINE_INSTALL_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
+get_filename_component(SLT_ENGINE_INSTALL_DIR "${SLT_ENGINE_INSTALL_DIR}" PATH)
+get_filename_component(SLT_ENGINE_INSTALL_DIR "${SLT_ENGINE_INSTALL_DIR}" PATH)
+get_filename_component(SLT_ENGINE_INSTALL_DIR "${SLT_ENGINE_INSTALL_DIR}" PATH)
+
+set(SHADER_COMPILER_EXECUTABLE $<TARGET_FILE:shader_compiler>)
+
+include("${SLT_ENGINE_CMAKE_DIR}/slt_engineTargets.cmake")
+include("${SLT_ENGINE_CMAKE_DIR}/slt_engineMacros.cmake")

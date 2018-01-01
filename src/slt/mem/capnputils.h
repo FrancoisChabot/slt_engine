@@ -2,6 +2,7 @@
 #define SLT_MEM_CAPNPUTILS_H
 
 #include "capnp/serialize.h"
+#include "slt/mem/data_view.h"
 
 namespace slt {
 inline auto getCapReader(DataView d) {

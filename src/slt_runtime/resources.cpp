@@ -24,7 +24,7 @@ void populate_preload_registry(ResourceRegistry& tgt) {
 
 std::shared_ptr<ResourceRegistry> addRegistry(std::string const& name,
                                               RegistryLoadMode mode) {
-  std::unique_lock lock(registry_lookup_mutex);
+  std::unique_lock<std::mutex> lock(registry_lookup_mutex);
   auto found = registries_.find(name);
   if (found != registries_.end()) {
     SLT_ASSERT(false);
@@ -45,12 +45,12 @@ std::shared_ptr<ResourceRegistry> addRegistry(std::string const& name,
 }
 
 void removeRegistry(std::string const& name) {
-  std::unique_lock lock(registry_lookup_mutex);
+  std::unique_lock<std::mutex> lock(registry_lookup_mutex);
   registries_.erase(name);
 }
 
 std::shared_ptr<ResourceRegistry> getRegistry(std::string const& name) {
-  std::unique_lock lock(registry_lookup_mutex);
+  std::unique_lock<std::mutex> lock(registry_lookup_mutex);
   return registries_.at(name);
 }
 }

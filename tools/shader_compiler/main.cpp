@@ -1,3 +1,6 @@
+#include <capnp/message.h>
+#include <capnp/serialize-packed.h>
+
 #include <fstream>
 #include <iostream>
 
@@ -10,13 +13,8 @@
 #include "slt/settings.h"
 #include "slt_capnp/render.capnp.h"
 
-#include <boost/filesystem.hpp>
-
-#include <capnp/message.h>
-#include <capnp/serialize-packed.h>
-
 using json = nlohmann::json;
-namespace fs = boost::filesystem;
+
 
 slt::Setting<std::string> input_file("", "input",
                                      "the file to load the shader config from");
@@ -28,13 +26,13 @@ int main(int argc, const char* argv[]) {
 
   slt::concur::EventQueue evt_queue;
 
-  fs::path input_path{input_file.get()};
-  input_path = absolute(canonical(input_path));
-  auto ref_path = input_path.parent_path();
+  std::string input_path{input_file.get()};
+
+  auto ref_path = input_path.substr(0, input_path.find_last_of('/')+1);
 
   json cfg;
   int pending_op = 1;
-  slt::file::asyncRead(input_path.native(), evt_queue,
+  slt::file::asyncRead(input_path, evt_queue,
                        [&](slt::DataBlock data) {
                          auto stream_buf = data.getStreamBuf();
                          std::istream stream(&stream_buf);
@@ -52,15 +50,15 @@ int main(int argc, const char* argv[]) {
   slt::data::render::ProgramData::Builder prog =
       message.initRoot<slt::data::render::ProgramData>();
 
-  fs::path v_shader_path = cfg.value("vertex", "");
-  fs::path f_shader_path = cfg.value("fragment", "");
-  fs::path g_shader_path = cfg.value("geometry", "");
+  auto v_shader_path = cfg.value("vertex", "");
+  auto f_shader_path = cfg.value("fragment", "");
+  auto g_shader_path = cfg.value("geometry", "");
 
   if (v_shader_path != "") {
     ++pending_op;
-    v_shader_path = absolute(canonical(ref_path / v_shader_path));
+    v_shader_path = ref_path + v_shader_path;
     slt::file::asyncRead(
-        v_shader_path.native(), evt_queue,
+        v_shader_path, evt_queue,
         [&](slt::DataBlock data) {
           prog.setVertexShader(std::string(data.data(), data.size()));
           --pending_op;
@@ -72,10 +70,10 @@ int main(int argc, const char* argv[]) {
   }
 
   if (f_shader_path != "") {
-    f_shader_path = absolute(canonical(ref_path / f_shader_path));
+    f_shader_path = ref_path + f_shader_path;
     ++pending_op;
     slt::file::asyncRead(
-        f_shader_path.native(), evt_queue,
+        f_shader_path, evt_queue,
         [&](slt::DataBlock data) {
           prog.setFragmentShader(std::string(data.data(), data.size()));
           --pending_op;
@@ -87,10 +85,10 @@ int main(int argc, const char* argv[]) {
   }
 
   if (g_shader_path != "") {
-    g_shader_path = absolute(canonical(ref_path / g_shader_path));
+    g_shader_path = ref_path + g_shader_path;
     ++pending_op;
     slt::file::asyncRead(
-        g_shader_path.native(), evt_queue,
+        g_shader_path, evt_queue,
         [&](slt::DataBlock data) {
           prog.setGeometryShader(std::string(data.data(), data.size()));
           --pending_op;
@@ -104,7 +102,7 @@ int main(int argc, const char* argv[]) {
   evt_queue.executeUntil([&] { return pending_op <= 0; });
 
   slt::file::write(message,
-                   absolute(fs::weakly_canonical(output_file.get())).native());
+                   output_file.get());
 
   return 0;
 }

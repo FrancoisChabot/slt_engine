@@ -118,10 +118,10 @@ class OnDemandTypedRegistry : public TypedRegistryInterface<T> {
       // operation pending on it.
       auto owner_ref = owner->shared_from_this();
       factory_(owner->name(), name, [owner_ref, this, name](ResourceRef<T> r) {
-        auto cbs = pending_.extract(name);
-        for (auto const& cb : cbs.mapped()) {
+        for (auto const& cb : pending_[name]) {
           cb(r);
         }
+        pending_.erase(name);
       });
     }
 

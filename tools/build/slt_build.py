@@ -2,6 +2,7 @@ import argparse
 import os
 import sys
 import hashlib
+import itertools
 import json
 import time
 import subprocess as proc
@@ -114,13 +115,13 @@ class Runner:
         cache['success'] &= result.returncode == 0
 
         # Extract read/write files.
-        for line in out_strings:
+        for line in itertools.chain(out_strings, err_strings):
           read_file = line.split('Reading from file: ', 1)
           if len(read_file) == 2:
-            cache['inputs'].append(read_file[1])
+            cache['inputs'].append(read_file[1].rstrip())
           write_file = line.split('Writing to file: ', 1)
           if len(write_file) == 2:
-            cache['outputs'].append(write_file[1])
+            cache['outputs'].append(write_file[1].rstrip())
 
         if result.returncode != 0:
           print("Failure")
@@ -155,5 +156,6 @@ def main():
       for name in tasks.keys():
         rule(runner, name, tasks[name])
 
+  print('Build Complete')
 if __name__ == "__main__":
   main()

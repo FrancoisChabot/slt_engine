@@ -91,6 +91,7 @@ Runtime::Runtime() : members_(std::make_unique<RuntimeBackendOpaqueMembers>()) {
 }
 
 Runtime::~Runtime() {
+  commonShutdown();
   SLT_ASSERT(instance != nullptr);
 
   slt::log->info("Tearing down platform (GLFW)");

@@ -15,6 +15,7 @@ add_library(slt_runtime OBJECT
   runtime.cpp
   drawing/model.cpp
   gui/font.cpp
+  gui/system.cpp
   gui/text.cpp
   gui/viewport.cpp
   gui/renderer/raw_renderer.cpp

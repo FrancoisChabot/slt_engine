@@ -43,6 +43,8 @@ class Runtime {
   // These functions are actually implemented in the backend classes
  private:
   void commonInit();
+  void commonShutdown();
+
   void platformSync();
 
   concur::EventQueue main_queue;

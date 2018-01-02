@@ -8,6 +8,8 @@ import time
 import subprocess as proc
 import rules.shader as shader
 import rules.images as images
+import rules.fonts as fonts
+import rules.registry as registry
 
 def _ArgsDictToList(args):
   return ['--' + name + '=' + val for name, val in sorted(args.items())]
@@ -22,7 +24,8 @@ def _getHash(cmds):
 
 rules = {
   "shaders" : shader.build,
-  "images" : images.build
+  "images" : images.build,
+  "fonts" : fonts.build,
 }
 
 class Runner:
@@ -92,7 +95,7 @@ class Runner:
       cache['cmd'] = [ ' '.join(cmd) for cmd in cmds ]
       cache['inputs'] = [__file__]
       cache['outputs'] = []
-      
+
       cache['inputs'].extend(inputs)
       cache['outputs'].extend(outputs)
 
@@ -105,7 +108,7 @@ class Runner:
 
         sub_env = os.environ.copy()
         sub_env["SLT_ENG_DIR"] = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../..')
-        
+
         result = proc.run(cmd, stdout=proc.PIPE, stderr=proc.PIPE, env=sub_env)
 
         out_strings = list(filter(None, result.stdout.decode('utf-8').split('\n')))
@@ -156,6 +159,7 @@ def main():
       for name in tasks.keys():
         rule(runner, name, tasks[name])
 
+  registry.build(runner, args.src)
   print('Build Complete')
 if __name__ == "__main__":
   main()

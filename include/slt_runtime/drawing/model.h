@@ -14,10 +14,17 @@ enum class PrimitiveType {
   TRIANGLES,
 };
 
+enum class AttribType {
+  FLOAT
+};
+
 struct VertexDescriptor {
   std::string channel;
   std::uint8_t dimensions;
+  AttribType type;
 };
+
+
 
 struct Model {
   virtual ~Model() {}
@@ -33,6 +40,11 @@ render::ModelRef createModel(render::PrimitiveType,
                              std::vector<render::VertexDescriptor> const&,
                              DataView vertex_data, DataView index_data,
                              int index_count);
+
+void updateModelData(render::ModelRef const&, 
+                     DataView vertex_data, 
+                     DataView index_data,
+                     int index_count);
 
 namespace models {
 // Creates a single Quad model

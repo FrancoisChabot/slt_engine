@@ -14,6 +14,8 @@ class GLFWModel : public slt::render::Model {
             DataView vertex_data, DataView index_data, int index_count);
   ~GLFWModel();
 
+  void updateData(DataView vertex_data, DataView index_data, int index_count);
+
   GLuint vao_ = 0;
   GLuint vertex_vbo_ = 0;
   GLuint indices_vbo_ = 0;

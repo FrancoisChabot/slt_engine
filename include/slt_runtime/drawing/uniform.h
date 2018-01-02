@@ -4,6 +4,8 @@
 #include <memory>
 #include <string>
 
+#include "slt/mem/data_view.h"
+
 namespace slt {
 namespace render {
 
@@ -18,6 +20,11 @@ struct UniformBuffer {
 using UniformBlockRef = std::shared_ptr<UniformBlock>;
 using UniformBufferRef = std::shared_ptr<UniformBuffer>;
 
+struct UniformBufferUsage {
+  UniformBufferUsage(UniformBufferRef const& prg);
+  ~UniformBufferUsage();
+};
+
 //
 UniformBlockRef registerUniformBlock(std::string const&, std::size_t);
 
@@ -28,7 +35,7 @@ UniformBlockRef registerUniformBlock(std::string const& name) {
 
 UniformBlockRef getUniformBlock(std::string const&);
 UniformBufferRef getUbo(UniformBlockRef, std::string const& = "");
-
+void updateUboData(UniformBufferRef const&, DataView);
 }  // namespace render
 
 }  // namespace slt

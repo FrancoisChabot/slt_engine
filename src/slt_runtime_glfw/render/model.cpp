@@ -17,13 +17,16 @@ GLFWModel::GLFWModel(render::PrimitiveType prim,
   glGenBuffers(1, &vertex_vbo_);
   glGenBuffers(1, &indices_vbo_);
 
+  prim_ = GL_TRIANGLES;
+
   try {
     glBindVertexArray(vao_);
     glBindBuffer(GL_ARRAY_BUFFER, vertex_vbo_);
     log->info("{} bytes of vertex data", vertex_data.size());
-    glBufferData(GL_ARRAY_BUFFER, vertex_data.size(), vertex_data.data(),
-                 GL_STATIC_DRAW);
-
+    if (vertex_data.size()) {
+      glBufferData(GL_ARRAY_BUFFER, vertex_data.size(), vertex_data.data(),
+        GL_STATIC_DRAW);
+    }
     unsigned int stride = 0;
     for (auto const &attr : desc) {
       stride += sizeof(float) * attr.dimensions;
@@ -41,12 +44,13 @@ GLFWModel::GLFWModel(render::PrimitiveType prim,
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indices_vbo_);
     log->info("{} bytes of index data", index_data.size());
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, index_data.size(), index_data.data(),
-                 GL_STATIC_DRAW);
+    if (index_data.size()) {
+      glBufferData(GL_ELEMENT_ARRAY_BUFFER, index_data.size(), index_data.data(),
+        GL_STATIC_DRAW);
 
-    prim_ = GL_TRIANGLES;
-    index_count_ = index_count;
-    switch (index_data.size() / index_count_) {
+
+      index_count_ = index_count;
+      switch (index_data.size() / index_count_) {
       case 1:
         index_type_ = GL_UNSIGNED_BYTE;
         break;
@@ -58,12 +62,40 @@ GLFWModel::GLFWModel(render::PrimitiveType prim,
         break;
       default:
         throw std::runtime_error("bad index data");
+      }
     }
   } catch (...) {
     glDeleteVertexArrays(1, &vao_);
     glDeleteBuffers(1, &vertex_vbo_);
     glDeleteBuffers(1, &indices_vbo_);
     throw;
+  }
+}
+
+void GLFWModel::updateData(DataView vertex_data, DataView index_data, int index_count) {
+  glBindVertexArray(vao_);
+
+  glBindBuffer(GL_ARRAY_BUFFER, vertex_vbo_);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indices_vbo_);
+  glBufferData(GL_ARRAY_BUFFER, vertex_data.size(), vertex_data.data(),
+    GL_STATIC_DRAW);
+
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, index_data.size(), index_data.data(),
+    GL_STATIC_DRAW);
+
+  index_count_ = index_count;
+  switch (index_data.size() / index_count_) {
+  case 1:
+    index_type_ = GL_UNSIGNED_BYTE;
+    break;
+  case 2:
+    index_type_ = GL_UNSIGNED_SHORT;
+    break;
+  case 4:
+    index_type_ = GL_UNSIGNED_INT;
+    break;
+  default:
+    throw std::runtime_error("bad index data");
   }
 }
 
@@ -96,4 +128,13 @@ render::ModelRef createModel(render::PrimitiveType prim,
   return std::make_shared<render::GLFWModel>(prim, desc, vertex_data,
                                              index_data, idx_count);
 }
+
+void updateModelData(render::ModelRef const& m_raw,
+  DataView vertex_data,
+  DataView index_data,
+  int index_count) {
+  render::GLFWModel *model = static_cast<render::GLFWModel *>(m_raw.get());
+  model->updateData(vertex_data, index_data, index_count);
+}
+
 }

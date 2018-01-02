@@ -14,9 +14,6 @@
 #include <unordered_set>
 
 namespace {
-std::unordered_map<std::string, std::weak_ptr<slt::render::GLFWProgram>>
-    loaded_programs_;
-
 std::string getFileForProgram(std::string const& package,
                               std::string const& name) {
   return package + "/shaders/" + name + ".cap";
@@ -205,19 +202,10 @@ ProgramUsage::~ProgramUsage() {}
 
 void loadProgram(std::string const& package, std::string const& name,
                  std::function<void(render::ProgramRef)> cb) {
-  std::string prg_key = package + "/" + name;
-  auto found = loaded_programs_.find(prg_key);
-  if (found != loaded_programs_.end() && !found->second.expired()) {
-    cb(found->second.lock());
-  } else {
     slt::file::asyncRead(getFileForProgram(package, name),
-                         slt::Runtime::instance->getMainQueue(),
-                         [prg_key, cb](slt::DataBlock d) {
-                           auto result =
-                               std::make_shared<render::GLFWProgram>(d);
-                           loaded_programs_[prg_key] = result;
-                           cb(result);
-                         });
-  }
+             slt::Runtime::instance->getMainQueue(),
+             [cb](slt::DataBlock d) {
+               cb(std::make_shared<render::GLFWProgram>(d));
+             });
 }
 }

@@ -2,6 +2,7 @@ find_package(glfw3 REQUIRED)
 
 add_library(slt_runtime_glfw
   render/attribute.cpp
+  render/blending.cpp
   render/model.cpp
   render/program.cpp
   render/render.cpp

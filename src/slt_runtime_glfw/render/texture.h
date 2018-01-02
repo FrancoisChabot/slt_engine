@@ -9,7 +9,8 @@ namespace slt {
 namespace render {
 class GLFWTexture : public slt::render::Texture {
  public:
-  GLFWTexture(DataView data);
+   GLFWTexture(TexConfig const& cfg);
+   GLFWTexture(DataView data);
   ~GLFWTexture();
 
   GLuint handle() const { return handle_; }

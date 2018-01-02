@@ -67,7 +67,35 @@ UniformBufferRef getUbo(UniformBlockRef ref, std::string const& name) {
   }
 }
 
-}  // namespace render
+GLFWUniformBuffer::GLFWUniformBuffer(std::shared_ptr<GLFWUniformBlock> b)
+  : block_(std::move(b)) {
+    glGenBuffers(1, &ubo_);
+    glBindBuffer(GL_UNIFORM_BUFFER, ubo_);
+    glBufferData(GL_UNIFORM_BUFFER, block_->size(), nullptr,
+      GL_STREAM_DRAW);
+}
 
-void destroyResource(render::UniformBlock* res) { delete res; }
+GLFWUniformBuffer::~GLFWUniformBuffer() {
+  glDeleteBuffers(1, &ubo_);
+}
+
+UniformBufferUsage::UniformBufferUsage(UniformBufferRef const& buf) {
+  auto native = static_cast<GLFWUniformBuffer*>(buf.get());
+  auto native_block = static_cast<GLFWUniformBlock*>(native->block().get());
+
+  glBindBufferBase(GL_UNIFORM_BUFFER, native_block->location(),
+                   native->ubo());
+}
+
+UniformBufferUsage::~UniformBufferUsage() {
+
+}
+
+void updateUboData(UniformBufferRef const& buf, DataView data) {
+  auto native = static_cast<GLFWUniformBuffer*>(buf.get());
+  glBindBuffer(GL_UNIFORM_BUFFER, native->ubo());
+  glBufferSubData(GL_UNIFORM_BUFFER, 0, data.size(), data.data());
+};
+
+}  // namespace render
 }  // namespace slt

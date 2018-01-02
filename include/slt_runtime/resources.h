@@ -32,6 +32,9 @@ template <typename T>
 using pending_res_load_queue_t =
     std::unordered_map<std::string, std::list<ResourceLoadCb<T>>>;
 
+template<typename T>
+class PreloadedTypedRegistry;
+
 class ResourceRegistry : public std::enable_shared_from_this<ResourceRegistry> {
  public:
   ResourceRegistry(std::string name) : name_(std::move(name)) {}
@@ -53,18 +56,33 @@ class ResourceRegistry : public std::enable_shared_from_this<ResourceRegistry> {
   template <typename T>
   inline void addOnDemandType(ResourceFactory<T>);
 
+  template <typename T>
+  inline PreloadedTypedRegistry<T>* addPreloadedType();
+
   // This convenience function will throw if the resource is not currently
   // loaded.
   // It should only be used on Registries that have been preloaded.
   template <typename T>
-  ResourceRef<T> getPreloaded(std::string const& name);
+  inline ResourceRef<T> getPreloaded(std::string const& name);
 
   std::string const& name() const { return name_; }
 
+  bool hasPendingLoads() const {
+    return pending_loads_ != 0;
+  }
+
+  void addPendingLoad() {
+    ++pending_loads_;
+  }
+  void clearPendingLoad() {
+    --pending_loads_;
+  }
+
  private:
-  std::string name_;
-  std::unordered_map<std::type_index, std::unique_ptr<TypedRegistry>>
-      registries_;
+   int pending_loads_ = 0;
+   std::string name_;
+   std::unordered_map<std::type_index, std::unique_ptr<TypedRegistry>>
+       registries_;
 };
 
 enum class RegistryLoadMode { ON_DEMAND, PRELOAD };
@@ -118,6 +136,7 @@ class OnDemandTypedRegistry : public TypedRegistryInterface<T> {
       // operation pending on it.
       auto owner_ref = owner->shared_from_this();
       factory_(owner->name(), name, [owner_ref, this, name](ResourceRef<T> r) {
+        loaded_[name] = r;
         for (auto const& cb : pending_[name]) {
           cb(r);
         }
@@ -151,12 +170,22 @@ class PreloadedTypedRegistry : public TypedRegistryInterface<T> {
   void get(std::string const& name, ResourceLoadCb<T> cb,
            ResourceRegistry*) override {
     auto found = loaded_.find(name);
-    if (found == loaded_.end) {
+    if (found == loaded_.end()) {
       // if it's not currently loaded, then there's not much we can do about it.
       cb(ResourceRef<T>());
     } else {
       cb(found->second);
     }
+  }
+
+  void add(std::string const& name, ResourceFactory<T> factory, ResourceRegistry* owner) {
+    owner->addPendingLoad();
+    auto owner_ref = owner->shared_from_this();
+
+    factory(owner->name(), name, [owner_ref, this, name](ResourceRef<T> r) {
+      loaded_[name] = std::move(r);
+      owner_ref->clearPendingLoad();
+    });
   }
 
   ResourceRef<T> getPreloaded(std::string const& name) override {
@@ -181,9 +210,30 @@ void ResourceRegistry::get(std::string const& name,
 }
 
 template <typename T>
+inline ResourceRef<T> ResourceRegistry::getPreloaded(std::string const& name) {
+  auto found = registries_.find(std::type_index(typeid(T)));
+  if (found == registries_.end()) {
+    throw std::runtime_error("unexpected resource type");
+  }
+
+  TypedRegistryInterface<T>* handler =
+      static_cast<TypedRegistryInterface<T>*>(found->second.get());
+  return handler->getPreloaded(name);
+}
+
+template <typename T>
 void ResourceRegistry::addOnDemandType(ResourceFactory<T> fac) {
   registries_[std::type_index(typeid(T))] =
       std::make_unique<OnDemandTypedRegistry<T>>(std::move(fac));
+}
+
+template <typename T>
+PreloadedTypedRegistry<T>* ResourceRegistry::addPreloadedType() {
+  auto result = std::make_unique<PreloadedTypedRegistry<T>>();
+  auto res_ptr = result.get();
+  registries_[std::type_index(typeid(T))] = std::move(result);
+
+  return res_ptr;
 }
 }
 

@@ -15,20 +15,23 @@ class GLFWUniformBlock : public slt::render::UniformBlock {
 
   GLuint location() const { return location_; }
 
- private:
+private:
   GLuint location_;
   const std::size_t size_;
 };
 
 class GLFWUniformBuffer : public slt::render::UniformBuffer {
  public:
-  GLFWUniformBuffer(std::shared_ptr<GLFWUniformBlock> b)
-      : block_(std::move(b)) {}
-
+  GLFWUniformBuffer(std::shared_ptr<GLFWUniformBlock> b);
+  ~GLFWUniformBuffer();
+  
   std::shared_ptr<GLFWUniformBlock> const& block() const { return block_; }
-
- private:
+  GLuint ubo() const {
+    return ubo_;
+  }
+private:
   std::shared_ptr<GLFWUniformBlock> block_;
+  GLuint ubo_;
 };
 }
 }

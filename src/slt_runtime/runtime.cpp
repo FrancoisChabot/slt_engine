@@ -24,5 +24,6 @@ void Runtime::commonInit() {
   render::registerAttribute("slt_vertex", 0);
   render::registerAttribute("slt_uv", 1);
   render::registerAttribute("slt_normal", 2);
+  render::registerAttribute("slt_color", 3);
 }
 }

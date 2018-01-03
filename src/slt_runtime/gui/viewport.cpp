@@ -24,6 +24,7 @@ namespace slt {
       render::UniformBufferUsage use_ubo(ubo_);
 
       WidgetRenderRequest req;
+      req.pos = { 0,0 };
       req.size = size_;
 
       root_->render(r, req);

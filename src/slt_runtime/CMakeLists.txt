@@ -18,6 +18,7 @@ add_library(slt_runtime OBJECT
   audio/system.cpp
   drawing/model.cpp
   gui/font.cpp
+  gui/image.cpp
   gui/system.cpp
   gui/text.cpp
   gui/viewport.cpp

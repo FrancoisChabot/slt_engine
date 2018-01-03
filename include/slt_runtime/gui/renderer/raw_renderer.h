@@ -10,11 +10,16 @@ namespace slt {
     class RawRenderer : public WidgetRenderer {
     public:
       RawRenderer(render::ProgramRef);
-      void draw(std::vector<Vertex>, std::vector<Index>, render::TextureRef texture) override;
+      void draw(std::vector<Vertex>,
+        std::vector<Index>,
+        render::TextureRef color_texture,
+        render::TextureRef mask_texture) override;
 
     private:
       render::ProgramRef program_;
       render::ModelRef model_;
+
+      render::TextureRef white_tex_;
     };
   }
 }

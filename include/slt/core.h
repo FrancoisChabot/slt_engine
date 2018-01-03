@@ -34,7 +34,9 @@ struct Core {
 
   static Core* instance;
 
+  // Queue an asynchronous task. Tasks are processed in FIFO order with no priorization.
   void queueTask(concur::Worker::Task t);
+
 private:
   concur::BlockingQueue<concur::Worker::Task> tasks_;
   std::vector<std::unique_ptr<concur::Worker>> general_purpose_workers_;

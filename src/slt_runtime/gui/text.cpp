@@ -87,7 +87,7 @@ namespace slt {
         cursor += glyph.advance;
       }
 
-       r.draw(vertices, indices, font_->getTexture());
+       r.draw(vertices, indices, nullptr, font_->getTexture());
     }
   }
   }

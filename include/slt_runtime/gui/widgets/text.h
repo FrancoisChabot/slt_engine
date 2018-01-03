@@ -42,6 +42,11 @@ namespace slt {
         return getBoxSize();
       }
 
+      template<typename T>
+      void setColor(T&& c) {
+        color_ = BindableValue<Color>(std::forward<T>(c));
+      }
+
     private:
 
       Vec2 getBoxSize() {

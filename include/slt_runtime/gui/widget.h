@@ -26,7 +26,10 @@ namespace slt {
     public:
       virtual ~WidgetRenderer() {}
 
-      virtual void draw(std::vector<Vertex>, std::vector<Index>, render::TextureRef texture) = 0;
+      virtual void draw(std::vector<Vertex>,
+                        std::vector<Index>,
+                        render::TextureRef color_texture,
+                        render::TextureRef mask_texture) = 0;
     };
 
     class Widget {

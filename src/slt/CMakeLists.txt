@@ -1,5 +1,6 @@
 add_library(slt_core
   concur/event_queue.cpp
+  concur/worker.cpp
   core.cpp
   debug/assert.cpp
   file/file.cpp

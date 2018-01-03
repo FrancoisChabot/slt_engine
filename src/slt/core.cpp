@@ -16,6 +16,10 @@ std::vector<std::string_view> argvToArgs(int argc, const char* argv[]) {
 }  // namespace
 
 namespace slt {
+    namespace settings {
+      Setting<int> workers_count(4, "workers",
+        "The number fo general purpose workers");
+    }
 
 Core* Core::instance = nullptr;
 
@@ -31,14 +35,29 @@ Core::Core(std::vector<std::string_view> const& args) {
   logging::init();
 
   file::startFilesystemThread();
+
+  general_purpose_workers_.reserve(settings::workers_count.get());
+  for (int i = 0; i < settings::workers_count.get(); ++i) {
+    general_purpose_workers_.emplace_back(std::make_unique<concur::Worker>(&tasks_, "General " + std::to_string(i)));
+  }
 }
 
 Core::~Core() {
+  for (auto const& x: general_purpose_workers_) {
+    tasks_.push(nullptr);
+  }
+  // Block on all workers before proceeding with the rest of the shutdown.
+  general_purpose_workers_.clear();
+
   file::stopFilesystemThread();
   instance = nullptr;
 
   settings::resetAll();
   logging::shutdown();
+}
+
+void Core::queueTask(concur::Worker::Task t) {
+  tasks_.push(std::move(t));
 }
 
 // void Core::update() {

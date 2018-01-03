@@ -93,10 +93,13 @@ namespace slt {
 
   void loadSound(std::string const& package, std::string const& name,
                  std::function<void(audio::SoundRef)> cb) {
-    slt::file::asyncRead(getFileForSound(package, name),
-      slt::Runtime::instance->getMainQueue(),
-      [cb](slt::DataBlock d) {
-        cb(std::make_shared<audio::Sound>(std::move(d)));
+
+    // TODO: Decoding should be delegated to a worker thread
+    slt::file::asyncReadtoWorker(getFileForSound(package, name), [cb](DataBlock d) {
+      auto new_sound = std::make_shared<audio::Sound>(std::move(d));
+      slt::Runtime::instance->getMainQueue().queueEvent([cb, new_sound]() {
+        cb(new_sound);
+      });
     });
   }
 

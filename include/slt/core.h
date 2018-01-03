@@ -3,6 +3,10 @@
 
 #include <string_view>
 #include <vector>
+
+#include "slt/settings.h"
+#include "slt/concur/worker.h"
+
 namespace slt {
 
 // There can never be more that one slt core active at any point in time,
@@ -17,6 +21,10 @@ namespace slt {
 // 2. Initializes logging.
 // 3. Initializes asynchronous filesystem
 
+namespace settings {
+  extern Setting<int> workers_count;
+}
+
 struct Core {
   explicit Core(
       std::vector<std::string_view> const& = std::vector<std::string_view>());
@@ -25,6 +33,11 @@ struct Core {
   ~Core();
 
   static Core* instance;
+
+  void queueTask(concur::Worker::Task t);
+private:
+  concur::BlockingQueue<concur::Worker::Task> tasks_;
+  std::vector<std::unique_ptr<concur::Worker>> general_purpose_workers_;
 };
 }  // namespace slt
 

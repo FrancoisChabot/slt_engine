@@ -1,27 +1,18 @@
 #include <fstream>
 #include "capnp/serialize.h"
-#include "slt/concur/blocking_queue.h"
+#include "slt/concur/worker.h"
 #include "slt/file/file_internal.h"
 #include "slt/file/read.h"
 #include "slt/file/write.h"
 #include "slt/log.h"
+#include "slt/core.h"
 
 namespace {
 
-std::thread filesystem_thread;
 slt::concur::BlockingQueue<std::function<void(void)>> pending_load_operations;
+std::unique_ptr<slt::concur::Worker> filesystem_thread;
 
-void filesystemThreadMain() {
-  slt::log->info("loading thread started");
-  while (1) {
-    auto op = pending_load_operations.pop();
-    if (!op) {
-      break;
-    }
-    op();
-  }
-  slt::log->info("loading thread finished");
-}
+
 }  // namespace
 
 namespace slt {
@@ -31,13 +22,12 @@ ReadError::ReadError(std::string reason) : std::runtime_error(reason) {}
 WriteError::WriteError(std::string reason) : std::runtime_error(reason) {}
 
 void startFilesystemThread() {
-  filesystem_thread = std::thread(filesystemThreadMain);
+  filesystem_thread = std::make_unique<concur::Worker>(&pending_load_operations, "filesystem");
 }
 
 void stopFilesystemThread() {
   pending_load_operations.push(nullptr);
-  filesystem_thread.join();
-  pending_load_operations.clear();
+  filesystem_thread.reset();
 }
 
 DataBlock read(std::string const &file) {
@@ -87,6 +77,27 @@ void asyncRead(std::string file, concur::EventQueue &queue, ReadCallback cb,
           queue->queueEvent(intermediate{move(err_cb), std::move(err)});
         }
       });
+}
+
+void asyncReadtoWorker(std::string file, ReadCallback cb) {
+  pending_load_operations.push(
+    [file, cb{ move(cb) }]() {
+    DataBlock data;
+    try {
+      data = slt::file::read(file);
+    }
+    catch (ReadError &) {
+      // Send an empty block, I guess?
+    }
+
+    struct intermediate {
+      ReadCallback cb_;
+      DataBlock data_;
+
+      void operator()() { cb_(std::move(data_)); }
+    };
+    Core::instance->queueTask(intermediate{ move(cb), std::move(data) });
+  });
 }
 
 void write(DataView data, std::string_view file) {

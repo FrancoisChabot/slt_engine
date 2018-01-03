@@ -30,6 +30,10 @@ using ReadFailedCallback = std::function<void(ReadError)>;
 void asyncRead(std::string file, concur::EventQueue &queue, ReadCallback cb,
                ReadFailedCallback err_cb = nullptr);
 
+// Asynchronously loads file and directly emits the ReadCallback as a general task.
+// TODO: What do we do in case of failure here?
+void asyncReadtoWorker(std::string file, ReadCallback cb);
+
 // Asynchronously loads file from the native filesystem in packets.
 // This can be usefull when loading very large files to avoid having
 // to make very large allocations.

@@ -7,6 +7,7 @@ struct ResourceRegistry {
   images @0 :List(Resource);
   shaders @1 :List(Resource);
   fonts @2 :List(Resource);
+  sounds @3 :List(Resource);
 }
 
 struct Resource {

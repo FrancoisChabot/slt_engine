@@ -10,6 +10,7 @@ import rules.shader as shader
 import rules.images as images
 import rules.fonts as fonts
 import rules.registry as registry
+import rules.sounds as sounds
 
 def _ArgsDictToList(args):
   return ['--' + name + '=' + val for name, val in sorted(args.items())]
@@ -26,6 +27,7 @@ rules = {
   "shaders" : shader.build,
   "images" : images.build,
   "fonts" : fonts.build,
+  "sounds" : sounds.build,
 }
 
 class Runner:

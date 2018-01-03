@@ -1,5 +1,9 @@
 find_package(glfw3 REQUIRED)
 
+find_library(OGG_LIBRARY NAMES ogg ogg_static)
+find_library(VORBIS_LIBRARY NAMES vorbis vorbis_static)
+find_library(VORBISFILE_LIBRARY NAMES vorbisfile vorbisfile_static)
+
 add_library(slt_runtime_glfw
   render/attribute.cpp
   render/blending.cpp
@@ -18,7 +22,7 @@ target_include_directories(slt_runtime_glfw PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:$<INSTALL_PREFIX>/include>)
 
-target_link_libraries(slt_runtime_glfw PUBLIC slt_core glfw)
+target_link_libraries(slt_runtime_glfw PUBLIC slt_core glfw OpenAL::OpenAL ${VORBISFILE_LIBRARY} ${VORBIS_LIBRARY} ${OGG_LIBRARY})
 target_compile_options(slt_runtime_glfw PUBLIC
                        "$<$<C_COMPILER_ID:Clang>:--std=c++17>"
                        "$<$<C_COMPILER_ID:GNU>:--std=c++17>"

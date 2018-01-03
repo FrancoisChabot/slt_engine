@@ -1,5 +1,6 @@
 find_package(glfw3 REQUIRED)
 find_package(CapnProto REQUIRED)
+find_package(OpenAL REQUIRED NO_CMAKE_PACKAGE_REGISTRY)
 
 get_filename_component(SLT_ENGINE_CMAKE_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
 

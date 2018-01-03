@@ -6,6 +6,7 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 find_package(Threads REQUIRED)
 find_package(CapnProto CONFIG REQUIRED)
+find_package(OpenAL CONFIG REQUIRED)
 
 SET(SLT_BUILD_INCLUDE_DIRS
   ${CMAKE_CURRENT_SOURCE_DIR}/include

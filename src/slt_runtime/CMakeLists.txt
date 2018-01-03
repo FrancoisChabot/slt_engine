@@ -13,6 +13,9 @@ ENDIF(MSVC)
 add_library(slt_runtime OBJECT
   resources.cpp
   runtime.cpp
+  audio/emmiter.cpp
+  audio/sound.cpp
+  audio/system.cpp
   drawing/model.cpp
   gui/font.cpp
   gui/system.cpp

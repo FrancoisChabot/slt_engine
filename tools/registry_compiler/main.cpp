@@ -58,7 +58,7 @@ int main(int argc, const char* argv[]) {
   }
 
   auto shdr_dst = reg.initShaders((unsigned int)cfg["shaders"].size());
-  
+
   i = 0;
   for (json::iterator shdr = cfg["shaders"].begin(); shdr != cfg["shaders"].end(); ++shdr) {
     shdr_dst[i].setName(shdr.key());
@@ -69,6 +69,13 @@ int main(int argc, const char* argv[]) {
   i = 0;
   for (json::iterator fnt = cfg["fonts"].begin(); fnt != cfg["fonts"].end(); ++fnt) {
     fnt_dst[i].setName(fnt.key());
+    ++i;
+  }
+
+  auto snd_dst = reg.initSounds((unsigned int)cfg["sounds"].size());
+  i = 0;
+  for (json::iterator snd = cfg["sounds"].begin(); snd != cfg["sounds"].end(); ++snd) {
+    snd_dst[i].setName(snd.key());
     ++i;
   }
 

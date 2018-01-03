@@ -9,8 +9,6 @@ namespace slt {
     System::System()
       : viewport_ubo_(slt::render::registerUniformBlock<ViewportUBO>("ViewportUBO")) {
       log->info("starting gui system");
-
-      SLT_ASSERT(instance == nullptr);
     }
 
     System::~System() {

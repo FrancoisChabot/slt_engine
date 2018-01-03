@@ -1,6 +1,7 @@
 #include "slt/mem/capnputils.h"
 #include "slt_capnp/resources.capnp.h"
 #include "slt_runtime/resources.h"
+#include "slt_runtime/audio/sound.h"
 #include "slt_runtime/runtime.h"
 #include "slt/log.h"
 #include "slt/file/read.h"
@@ -21,6 +22,7 @@ void populate_on_demand_registry(ResourceRegistry& tgt) {
   tgt.addOnDemandType<render::Texture>(loadTexture);
   tgt.addOnDemandType<render::Program>(loadProgram);
   tgt.addOnDemandType<gui::FontData>(loadFontData);
+  tgt.addOnDemandType<audio::Sound>(loadSound);
 }
 
 void populate_preload_registry(ResourceRegistry& tgt) {
@@ -49,6 +51,12 @@ void populate_preload_registry(ResourceRegistry& tgt) {
       auto reg = tgt_ptr->addPreloadedType<gui::FontData>();
       for (auto const& fnt : prg_data.getFonts()) {
         reg->add(fnt.getName().cStr(), loadFontData, tgt_ptr.get());
+      }
+    }
+    if (prg_data.hasSounds()) {
+      auto reg = tgt_ptr->addPreloadedType<audio::Sound>();
+      for (auto const& fnt : prg_data.getSounds()) {
+        reg->add(fnt.getName().cStr(), loadSound, tgt_ptr.get());
       }
     }
   });

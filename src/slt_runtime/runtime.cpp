@@ -1,5 +1,6 @@
 #include "slt_runtime/runtime.h"
 #include "slt_runtime/drawing/attribute.h"
+#include "slt_runtime/audio/system.h"
 #include "slt_runtime/gui/system.h"
 
 namespace slt {
@@ -27,10 +28,12 @@ void Runtime::commonInit() {
   render::registerAttribute("slt_normal", 2);
   render::registerAttribute("slt_color", 3);
 
+  audio::System::instance = std::make_unique<audio::System>();
   gui::System::instance = std::make_unique<gui::System>();
 }
 
 void Runtime::commonShutdown() {
   gui::System::instance.reset();
+  audio::System::instance.reset();
 }
 }

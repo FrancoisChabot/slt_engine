@@ -75,8 +75,6 @@ GLFWModel::GLFWModel(render::PrimitiveType prim,
 void GLFWModel::updateData(DataView vertex_data, DataView index_data, int index_count) {
   glBindVertexArray(vao_);
 
-  glBindBuffer(GL_ARRAY_BUFFER, vertex_vbo_);
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indices_vbo_);
   glBufferData(GL_ARRAY_BUFFER, vertex_data.size(), vertex_data.data(),
     GL_STATIC_DRAW);
 
@@ -115,6 +113,7 @@ void draw(slt::render::ModelRef const &m_raw) {
   GLFWModel *model = static_cast<GLFWModel *>(m_raw.get());
   glBindVertexArray(model->vao_);
   glDrawElements(model->prim_, model->index_count_, model->index_type_, 0);
+  glFlush();
 }
 }
 

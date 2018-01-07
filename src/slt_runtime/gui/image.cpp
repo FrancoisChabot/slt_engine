@@ -5,8 +5,10 @@ namespace slt {
   namespace gui {
 
     Image::Image(std::string const& package, std::string const& asset) {
-      getRegistry(package)->get<render::Texture>(asset, [this](auto t){
-        texture_ = std::move(t);
+      getRegistry(package)->get<render::Texture>(asset, [self = get_self_nulling_ptr()](auto t){
+        if (self) {
+          static_cast<Image*>(self.get())->texture_ = std::move(t);
+        }
       });
     }
 

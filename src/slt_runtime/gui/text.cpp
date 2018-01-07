@@ -5,17 +5,18 @@ namespace slt {
   FontRef Text::default_font;
 
   void Text::render(WidgetRenderer& r, WidgetRenderRequest const& rr) {
+
       std::vector<Vertex> vertices;
       std::vector<Index> indices;
 
-      Vec2 cursor = {0.0f, 0.0f};
+      Vec2 cursor{ 0,0 };
       auto box_size = getBoxSize();
       switch(h_align) {
         case TextHAlign::Center:
           cursor.x = (rr.size.x - box_size.x) / 2.0f;
         break;
         case TextHAlign::Right:
-        cursor.x = (rr.size.y - box_size.y);
+          cursor.x = (rr.size.y - box_size.y);
         break;
 
         case TextHAlign::Left:
@@ -23,6 +24,8 @@ namespace slt {
           break;
       }
 
+
+      cursor += rr.pos;
       switch (v_align) {
       case TextVAlign::Top:
         cursor.y = rr.size.y - font_->getAscent();
@@ -47,10 +50,10 @@ namespace slt {
 
       Vertex v;
       v.color = color_.get();
-
+      
       for(auto c : value_.get()) {
         auto glyph = font_->getGlyph(c);
-
+        
         Index ref_id = (Index)vertices.size();
 
         v.pos.x = cursor.x + glyph.top_left_offset.x;
@@ -87,7 +90,7 @@ namespace slt {
         cursor += glyph.advance;
       }
 
-       r.draw(vertices, indices, nullptr, font_->getTexture());
+       r.draw(std::move(vertices), std::move(indices), nullptr, font_->getTexture());
     }
   }
   }

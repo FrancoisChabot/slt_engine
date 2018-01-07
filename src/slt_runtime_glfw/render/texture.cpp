@@ -82,17 +82,18 @@ GLFWTexture::GLFWTexture(DataView data) {
   }
   log->info("success...");
 
+  glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_2D, handle_);
-  glTexStorage2D(GL_TEXTURE_2D, 8, GL_RGBA8, w, h);
+  glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA8, w, h);
   glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, w, h, GL_RGBA, GL_UNSIGNED_BYTE,
     decoded_data);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 
   free(decoded_data);
 }
@@ -126,10 +127,9 @@ void updateTexture(TextureRef const& tex, iVec2 pos, iVec2 size,
   DataView data,
   TexDataFormat format,
   std::size_t row_length) {
+  TextureUsage binding(tex, 0);
 
-  auto native = static_cast<GLFWTexture*>(tex.get());
   SLT_ASSERT_EQ(expectedSize(format, size.x, size.y), data.size());
-  glBindTexture(GL_TEXTURE_2D, native->handle());
   auto fmt = convertTexDataFormat(format);
 
   glPixelStorei(GL_UNPACK_ROW_LENGTH, (GLint)row_length);

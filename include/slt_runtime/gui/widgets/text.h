@@ -60,8 +60,8 @@ namespace slt {
         return result;
       }
 
-      TextHAlign h_align = TextHAlign::Center;
-      TextVAlign v_align = TextVAlign::Middle;
+      TextHAlign h_align = TextHAlign::Left;
+      TextVAlign v_align = TextVAlign::BottomBaseline;
       BindableValue<std::string> value_;
       BindableValue<Color> color_ = black;
 

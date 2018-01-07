@@ -3,6 +3,7 @@
 
 #include "slt/math/vec.h"
 #include "slt/color.h"
+#include "slt/self_nulling_ptr.h"
 #include "slt_runtime/drawing/texture.h"
 
 #include <vector>
@@ -32,7 +33,7 @@ namespace slt {
                         render::TextureRef mask_texture) = 0;
     };
 
-    class Widget {
+    class Widget : public enable_self_nulling_ptr<Widget> {
     public:
       Widget() {}
       virtual ~Widget() {}

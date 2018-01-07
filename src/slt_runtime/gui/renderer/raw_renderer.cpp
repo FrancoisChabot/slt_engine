@@ -22,7 +22,7 @@ namespace slt {
       model_ = createModel(slt::render::PrimitiveType::TRIANGLES,
         desc,
         DataView(), DataView(), 0);
-
+        
 
       // We create a simple 1x1 white texture to use as placeholder.
       render::TexConfig white_tex_cfg;

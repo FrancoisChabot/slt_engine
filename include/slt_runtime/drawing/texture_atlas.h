@@ -47,10 +47,10 @@ namespace slt {
 
         //assign outgoing UVS
         result.top_right.x = float(packing_result.pos[0] ) / float(size_[0]);
-        result.top_right.y = float(packing_result.pos[1] ) / float(size_[1]);
+        result.top_right.y = float(packing_result.pos[1] + img_size[0]) / float(size_[1]);
 
         result.bottom_left.x = float(packing_result.pos[0] + img_size[1]) / float(size_[0]);
-        result.bottom_left.y = float(packing_result.pos[1] + img_size[0]) / float(size_[1]);
+        result.bottom_left.y = float(packing_result.pos[1]) / float(size_[1]);
 
         result.bottom_right.x = result.bottom_left.x;
         result.bottom_right.y = result.top_right.y;

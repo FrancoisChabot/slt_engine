@@ -4,6 +4,7 @@
 #include "slt/concur/blocking_queue.h"
 
 #include <thread>
+#include <functional>
 
 namespace slt {
 namespace concur {

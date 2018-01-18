@@ -6,7 +6,7 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 find_package(Threads REQUIRED)
 find_package(CapnProto CONFIG REQUIRED)
-find_package(OpenAL CONFIG REQUIRED)
+find_package(OpenAL REQUIRED)
 
 SET(SLT_BUILD_INCLUDE_DIRS
   ${CMAKE_CURRENT_SOURCE_DIR}/include
@@ -14,6 +14,7 @@ SET(SLT_BUILD_INCLUDE_DIRS
   ${CMAKE_CURRENT_SOURCE_DIR}/third_party/public/include
   ${CMAKE_CURRENT_SOURCE_DIR}/third_party/private/include
 )
+
 
 IF(MSVC)
   add_definitions(-D_ITERATOR_DEBUG_LEVEL=0)
